@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CovidCase } from './covid-cases.entity';
-import { CovidCasesRepository } from './covid-cases.repository';
 import { CovidCasesService } from './covid-cases.service';
 import { LocationVariantsDto } from './dtos/location-variants.dto';
 import { VariantSequencesDto } from './dtos/variant-sequences.dto';
@@ -23,66 +23,105 @@ const location1_cumulated = {
 
 describe('CovidCasesService', () => {
   let service: CovidCasesService;
-  let repo: CovidCasesRepository;
+  let repo: Repository<CovidCase>;
+  let spy_querybuilder;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      // imports:[getRepositoryToken(CovidCase)]
       providers: [
         CovidCasesService,
         {
           provide: getRepositoryToken(CovidCase),
-          useValue: {
-            countForDate: jest.fn().mockResolvedValue([LOCATION1]),
-            cumulativeForDate: jest
-              .fn()
-              .mockResolvedValue([location1_cumulated]),
-          },
+          useClass: Repository,
         },
       ],
     }).compile();
 
     service = module.get<CovidCasesService>(CovidCasesService);
-    repo = module.get<CovidCasesRepository>(getRepositoryToken(CovidCase));
+    repo = module.get<Repository<CovidCase>>(getRepositoryToken(CovidCase));
+    spy_querybuilder = jest.spyOn(repo, 'createQueryBuilder');
   });
 
-  it('should be defined', () => {
+  it('should be defined', async () => {
     expect(service).toBeDefined();
   });
 
-  it('should call the repository', () => {
-    service.countForDate(DATE);
-    expect(repo.countForDate).toHaveBeenCalled();
+  it('should call the repository', async () => {
+    const createQueryBuilder: any = () => ({
+      where: createQueryBuilder,
+      getMany: createQueryBuilder,
+    });
+
+    spy_querybuilder.mockImplementation(createQueryBuilder);
+
+    await service.countForDate(DATE);
+    expect(repo.createQueryBuilder).toHaveBeenCalled();
   });
 
   describe('countForDate', () => {
-    it('should be defined', () => {
+    it('should be defined', async () => {
       expect(service.countForDate).toBeDefined();
     });
 
-    it('should call the repository', () => {
+    it('should call the query chain', async () => {
+      const createQueryBuilder: any = () => ({
+        where: createQueryBuilder,
+        getMany: createQueryBuilder,
+      });
+
+      spy_querybuilder.mockImplementation(createQueryBuilder);
+
       service.countForDate(DATE);
-      expect(repo.countForDate).toHaveBeenCalled();
+      expect(repo.createQueryBuilder).toHaveBeenCalled();
     });
 
     it('should return a list of results for a given date', () => {
-      const date = DATE;
-      expect(service.countForDate(date)).resolves.toEqual([LOCATION1]);
+      const createQueryBuilder: any = () => ({
+        where: createQueryBuilder,
+        getMany: () => [LOCATION1],
+      });
+
+      spy_querybuilder.mockImplementation(createQueryBuilder);
+
+      expect(service.countForDate(DATE)).resolves.toEqual([LOCATION1]);
     });
   });
 
-  describe('cumulativetForDate', () => {
-    it('should be defined', () => {
+  describe('cumulativeForDate', () => {
+    it('should be defined', async () => {
       expect(service.cumulativeForDate).toBeDefined();
     });
 
-    it('should call the repository', () => {
+    it('should call the query chain', async () => {
+      const createQueryBuilder: any = () => ({
+        where: createQueryBuilder,
+        getMany: createQueryBuilder,
+      });
+
+      spy_querybuilder.mockImplementation(createQueryBuilder);
+
       service.cumulativeForDate(DATE);
-      expect(repo.cumulativeForDate).toHaveBeenCalled();
+      expect(repo.createQueryBuilder).toHaveBeenCalled();
     });
 
     it('should return a list of results for a given date', () => {
-      const date = DATE;
-      expect(service.cumulativeForDate(date)).resolves.toEqual([
+      const createQueryBuilder: any = () => ({
+        where: createQueryBuilder,
+        getMany: () => {
+          const variant = new VariantSequencesDto('Alpha', 100);
+
+          const location = new LocationVariantsDto('Brazil', DATE);
+          location.variants.push(variant);
+          const accumulated_value = 50;
+          location.variants[0].num_sequences += accumulated_value;
+
+          return [location];
+        },
+      });
+
+      spy_querybuilder.mockImplementation(createQueryBuilder);
+      expect(service.cumulativeForDate(DATE)).resolves.toEqual([
         location1_cumulated,
       ]);
     });
