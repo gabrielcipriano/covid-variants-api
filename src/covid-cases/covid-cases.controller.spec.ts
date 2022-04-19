@@ -88,13 +88,6 @@ describe('CovidCasesController', () => {
       const date = DATE;
       expect(controller.count(date)).resolves.toEqual([LOCATION1]);
     });
-
-    it('should throw an error if a invalid date string is provided', () => {
-      const date = 'invalid date';
-      expect(() => controller.count(date)).toThrowError(
-        `Invalid date string: ${date}`,
-      );
-    });
   });
 
   describe('cumulative', () => {
@@ -123,13 +116,6 @@ describe('CovidCasesController', () => {
       expect(controller.cumulative(date)).resolves.toEqual([
         location1_cumulated,
       ]);
-    });
-
-    it('should throw an error if a invalid date string is provided', () => {
-      const date = 'invalid date';
-      expect(() => controller.cumulative(date)).toThrowError(
-        `Invalid date string: ${date}`,
-      );
     });
   });
 });
