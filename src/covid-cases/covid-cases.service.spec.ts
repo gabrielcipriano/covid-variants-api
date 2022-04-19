@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CovidCase } from './covid-cases.entity';
 import { CovidCasesService } from './covid-cases.service';
@@ -35,7 +35,6 @@ const cumulativeResultQueryBuilder = {
 describe('CovidCasesService', () => {
   let service: CovidCasesService;
   let repo: Repository<CovidCase>;
-  // let spy_querybuilder;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -43,7 +42,6 @@ describe('CovidCasesService', () => {
         CovidCasesService,
         {
           provide: getRepositoryToken(CovidCase),
-          // useClass: Repository,
           useValue: {
             find: jest
               .fn()
@@ -82,7 +80,6 @@ describe('CovidCasesService', () => {
 
     service = module.get<CovidCasesService>(CovidCasesService);
     repo = module.get<Repository<CovidCase>>(getRepositoryToken(CovidCase));
-    // spy_querybuilder = jest.spyOn(repo, 'createQueryBuilder');
   });
 
   it('should be defined', async () => {
