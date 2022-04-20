@@ -15,7 +15,7 @@ const csvDirname = __dirname + csvDirRelative;
 function rowParser(rowObj: any): any | null {
   const { perc_sequences, num_sequences_total, ...obj } = rowObj;
   obj.num_sequences = parseInt(obj.num_sequences);
-  return obj.num_sequences ? obj : null;
+  return obj.num_sequences !== 0 ? obj : null;
 }
 
 function readCsv(path, options, rowParser): Promise<any[]> {
