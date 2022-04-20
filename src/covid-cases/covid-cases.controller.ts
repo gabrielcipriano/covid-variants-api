@@ -11,8 +11,13 @@ export class CovidCasesController {
     return this.covidCasesService.countForDate(date);
   }
 
-  @Get('cumulative/:date')
+  @Get('/cumulative/:date')
   cumulative(@Param('date', ParseDateStringPipe) date: ValidDateStr) {
     return this.covidCasesService.cumulativeForDate(date);
+  }
+
+  @Get('/dates')
+  getDates() {
+    return this.covidCasesService.allDates();
   }
 }

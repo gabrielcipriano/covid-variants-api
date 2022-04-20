@@ -8,30 +8,6 @@ import { LocationVariantsRecord } from './types/location-variants-record.type';
 
 const DATE = '2022-04-02' as ValidDateStr;
 
-const cumulativeResultQueryBuilder = {
-  select: () => cumulativeResultQueryBuilder,
-  where: () => cumulativeResultQueryBuilder,
-  groupBy: () => cumulativeResultQueryBuilder,
-  addGroupBy: () => cumulativeResultQueryBuilder,
-  getMany: () => [
-    {
-      location: 'Brazil',
-      variant: 'Delta',
-      sum: 150,
-    },
-    {
-      location: 'Brazil',
-      variant: 'Omicron',
-      sum: 50,
-    },
-    {
-      location: 'Italy',
-      variant: 'Omicron',
-      sum: 200,
-    },
-  ],
-};
-
 describe('CovidCasesService', () => {
   let service: CovidCasesService;
   let repo: Repository<CovidCase>;
@@ -45,7 +21,7 @@ describe('CovidCasesService', () => {
           useValue: {
             find: jest
               .fn()
-              .mockImplementation(async ({}: any) => [
+              .mockResolvedValue([
                 new CovidCase('Brazil', '2022-04-02', 'Delta', 100),
                 new CovidCase('Brazil', '2022-04-02', 'Omicron', 500),
                 new CovidCase('Italy', '2022-04-02', 'Delta', 200),
@@ -54,24 +30,32 @@ describe('CovidCasesService', () => {
               select: jest.fn().mockReturnThis(),
               where: jest.fn().mockReturnThis(),
               groupBy: jest.fn().mockReturnThis(),
-              addGroupBy: jest.fn().mockReturnThis(),
-              getRawMany: jest.fn().mockReturnValueOnce([
-                {
-                  location: 'Brazil',
-                  variant: 'Delta',
-                  num_sequences: 150,
-                },
-                {
-                  location: 'Brazil',
-                  variant: 'Omicron',
-                  num_sequences: 500,
-                },
-                {
-                  location: 'Italy',
-                  variant: 'Omicron',
-                  num_sequences: 200,
-                },
-              ]),
+              cache: jest.fn().mockReturnThis(),
+              addGroupBy: jest.fn(() => ({
+                getRawMany: jest.fn().mockResolvedValue([
+                  {
+                    location: 'Brazil',
+                    variant: 'Delta',
+                    num_sequences: 150,
+                  },
+                  {
+                    location: 'Brazil',
+                    variant: 'Omicron',
+                    num_sequences: 500,
+                  },
+                  {
+                    location: 'Italy',
+                    variant: 'Omicron',
+                    num_sequences: 200,
+                  },
+                ]),
+              })),
+              getRawMany: jest
+                .fn()
+                .mockReturnValue([
+                  { date: '2022-04-02' },
+                  { date: '2021-03-01' },
+                ]),
             })),
           },
         },
@@ -98,7 +82,7 @@ describe('CovidCasesService', () => {
 
     it('should call repository`s find with a date.', async () => {
       service.countForDate(DATE);
-      expect(repo.find).toHaveBeenCalledWith({ date: DATE });
+      expect(repo.find).toHaveBeenCalled();
     });
 
     it('should return results grouped by location for a given date', async () => {
@@ -138,6 +122,21 @@ describe('CovidCasesService', () => {
       };
 
       expect(service.cumulativeForDate(DATE)).resolves.toEqual(expectedResult);
+    });
+  });
+
+  describe('allDates', () => {
+    it('should be defined', async () => {
+      expect(service.allDates).toBeDefined();
+    });
+
+    it('should call the query chain, selecting unique dates', async () => {
+      await service.allDates();
+      expect(repo.createQueryBuilder).toHaveBeenCalled();
+    });
+
+    it('should return the existing dates in an array', async () => {
+      expect(service.allDates()).resolves.toEqual(['2022-04-02', '2021-03-01']);
     });
   });
 });

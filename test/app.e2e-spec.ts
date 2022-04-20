@@ -147,4 +147,13 @@ describe('AppController (e2e)', () => {
         });
     });
   });
+
+  describe('/dates', () => {
+    it('/dates [returns a list of unique dates in the database] (GET)', async () => {
+      return request(app.getHttpServer())
+        .get('/dates')
+        .expect(200)
+        .expect(['2021-02-02', '2022-03-02', '2022-04-02']);
+    });
+  });
 });

@@ -15,6 +15,7 @@ import { CovidCase } from './covid-cases/covid-cases.entity';
               database: ':memory:',
               entities: [CovidCase],
               synchronize: true,
+              cache: true,
             }
           : {
               type: 'postgres',
@@ -25,6 +26,7 @@ import { CovidCase } from './covid-cases/covid-cases.entity';
               database: configService.get<string>('DATABASE_NAME'),
               entities: [CovidCase],
               synchronize: true,
+              cache: true,
             },
     }),
   ],
