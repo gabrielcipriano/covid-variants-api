@@ -1,17 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CovidCasesController } from './covid-cases.controller';
 import { CovidCasesService } from './covid-cases.service';
-import { LocationVariantsDto } from './dtos/location-variants.dto';
-import { VariantSequencesDto } from './dtos/variant-sequences.dto';
+import { LocationVariantsRecord } from './types/location-variants-record.type';
 import { ValidDateStr } from './types/valid-date-str.type';
 
 const DATE = '2022-04-02' as ValidDateStr;
 
-const VARIANT1 = new VariantSequencesDto('Alpha', 100);
-const VARIANT1_ANOTHER = new VariantSequencesDto('Alpha', 50);
-
-const LOCATION1 = new LocationVariantsDto('Brazil', DATE);
-LOCATION1.variants.push(VARIANT1);
+const locationRecord: LocationVariantsRecord = {
+  Brazil: {
+    Alpha: 100,
+  },
+};
 
 describe('CovidCasesController', () => {
   let controller: CovidCasesController;
@@ -27,31 +26,18 @@ describe('CovidCasesController', () => {
             countForDate: jest
               .fn()
               .mockImplementation(
-                async (
-                  date: ValidDateStr,
-                ): Promise<Array<LocationVariantsDto>> => {
-                  return [LOCATION1];
+                async (date: ValidDateStr): Promise<LocationVariantsRecord> => {
+                  return locationRecord;
                 },
               ),
             cumulativeForDate: jest
               .fn()
               .mockImplementation(
-                async (
-                  date: ValidDateStr,
-                ): Promise<Array<LocationVariantsDto>> => {
-                  return [
-                    {
-                      ...LOCATION1,
-                      variants: [
-                        {
-                          variant: VARIANT1.variant,
-                          num_sequences:
-                            VARIANT1.num_sequences +
-                            VARIANT1_ANOTHER.num_sequences,
-                        },
-                      ],
-                    },
-                  ];
+                async (date: ValidDateStr): Promise<LocationVariantsRecord> => {
+                  return {
+                    ...locationRecord,
+                    Italy: { Omicron: 400, Delta: 300 },
+                  };
                 },
               ),
           },
@@ -84,9 +70,9 @@ describe('CovidCasesController', () => {
       expect(service.countForDate).toHaveBeenCalled();
     });
 
-    it('should return a list of results for a given date', () => {
+    it('should return an record for a given date', () => {
       const date = DATE;
-      expect(controller.count(date)).resolves.toEqual([LOCATION1]);
+      expect(controller.count(date)).resolves.toEqual(locationRecord);
     });
   });
 
@@ -101,21 +87,13 @@ describe('CovidCasesController', () => {
       expect(service.cumulativeForDate).toHaveBeenCalled();
     });
 
-    it('should return a list of results with proper cumulated value for a given date', () => {
+    it('should return an record with proper cumulated value for a given date', () => {
       const date = DATE;
-      const location1_cumulated = {
-        ...LOCATION1,
-        variants: [
-          {
-            variant: VARIANT1.variant,
-            num_sequences:
-              VARIANT1.num_sequences + VARIANT1_ANOTHER.num_sequences,
-          },
-        ],
-      };
-      expect(controller.cumulative(date)).resolves.toEqual([
-        location1_cumulated,
-      ]);
+
+      expect(controller.cumulative(date)).resolves.toEqual({
+        ...locationRecord,
+        Italy: { Omicron: 400, Delta: 300 },
+      });
     });
   });
 });
