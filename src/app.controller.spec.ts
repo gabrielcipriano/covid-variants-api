@@ -13,10 +13,12 @@ describe('AppController', () => {
 
     appController = app.get<AppController>(AppController);
   });
-
+  // TODO: return the expected root
   describe('root', () => {
     it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+      expect(appController.getHello()).toBe(
+        'Backend Challenge 2021 🏅 - Covid Daily Cases',
+      );
     });
   });
 });

@@ -8,5 +8,6 @@ import { CovidCasesService } from './covid-cases.service';
   imports: [TypeOrmModule.forFeature([CovidCase])],
   controllers: [CovidCasesController],
   providers: [CovidCasesService],
+  exports: [CovidCasesService],
 })
 export class CovidCasesModule {}
