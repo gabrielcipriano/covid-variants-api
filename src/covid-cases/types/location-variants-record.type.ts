@@ -1,4 +1,6 @@
 import { VariantCasesRecord } from './variant-cases-record.type';
+import { ApiProperty } from '@nestjs/swagger';
+
 /*
   We will have something like this:
     {
