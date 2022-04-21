@@ -25,7 +25,7 @@ export class CovidCasesService {
   ): Promise<LocationVariantsRecord> {
     const queryResult = await this.repository
       .createQueryBuilder('covid_case')
-      .select('location, variant, sum(num_sequences)::integer as num_sequences')
+      .select('location, variant, sum(num_sequences) as num_sequences')
       .where('covid_case.date <= :date', { date: _date })
       .groupBy('covid_case.location')
       .cache(30000) //30 seconds

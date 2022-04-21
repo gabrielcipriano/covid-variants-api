@@ -9,7 +9,7 @@ export function groupResultsByLocation(
 
     if (!record[location]) record[location] = {};
 
-    record[location][variant] = num_sequences;
+    record[location][variant] = parseInt(num_sequences as any);
 
     return record;
   }, {});

@@ -1,10 +1,11 @@
 import { readCsv, rowParser } from './../populate-database-csv-helper';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import { CovidCase } from './../src/covid-cases/covid-cases.entity';
+import * as path from 'path';
 
-const csvDirRelative = '/data/covid-variants.csv';
+const csvDirRelative = '../../data/covid-variants.csv';
 
-const csvDirname = __dirname + csvDirRelative;
+const csvDirname = path.join(__dirname, csvDirRelative);
 
 export class LoadDataFromCSV1650465631437 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
