@@ -14,6 +14,9 @@
 ## API docs
 Swagger: [https://app.swaggerhub.com/apis/gabrielcipriano/covid-cases-api/1.0](https://app.swaggerhub.com/apis/gabrielcipriano/covid-cases-api/1.0)
 
+## Video de apresentação
+[https://github.com/gabrielcipriano/covid-variants-api](https://www.loom.com/share/9617a3636f1a493c8fc2860f2baf8b49)
+  
 ## Installation
 
 ```bash
